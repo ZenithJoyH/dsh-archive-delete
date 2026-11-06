@@ -51,6 +51,9 @@
   "scripts": {
     "test": "node --check lib/index.js && node --check lib/client.js && node test/host.test.mjs && node test/client.smoke.cjs"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "engines": {
     "node": ">=22"
   },

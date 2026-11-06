@@ -62,7 +62,7 @@ dsh / 桌面端。只改 `lib/client.js` 时刷新页面即可（若 `pnpm run d
       name: "dsh-archive-delete"
 ```
 
-### 从 npm / GitHub 安装（发布后）
+### 从 npm 安装（发布后）
 
 ```bash
 # Web profile
@@ -71,7 +71,7 @@ dsh plugin --profile web add dsh-archive-delete
 # Desktop profile
 dsh plugin --profile desktop add dsh-archive-delete
 
-# 仅源码安装（未发布 npm 时）
+# 或从 GitHub 源码安装
 dsh plugin --profile web add github:ZenithJoyH/dsh-archive-delete
 dsh plugin --profile desktop add github:ZenithJoyH/dsh-archive-delete
 ```
