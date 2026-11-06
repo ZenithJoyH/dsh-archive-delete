@@ -93,6 +93,7 @@ function makeScoped(overrides = {}) {
     agents: overrides.agents ?? { get: () => undefined },
     get(name) {
       if (name === 'agents') return this.agents
+      if (name === 'sessionPersistence') return this.persistence
       return undefined
     },
     workspaceRegistry: registry,
