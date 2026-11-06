@@ -1,0 +1,5 @@
+# Plug-in row: mounts the Host half and discovers the browser half through
+# package.json `dsh.client`.
+- insert:
+    - id: archive-delete
+      name: "dsh-archive-delete"

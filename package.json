@@ -1,0 +1,58 @@
+{
+  "name": "dsh-archive-delete",
+  "version": "0.1.0",
+  "description": "DSH web plugin: permanently delete archived sessions from the sidebar menu, with a guarded Host route and confirmation dialog. DSH Web 插件：永久删除已归档会话。",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ZenithJoyH/dsh-archive-delete.git"
+  },
+  "homepage": "https://github.com/ZenithJoyH/dsh-archive-delete#readme",
+  "bugs": {
+    "url": "https://github.com/ZenithJoyH/dsh-archive-delete/issues"
+  },
+  "keywords": [
+    "dsh",
+    "deepseek-harness",
+    "plugin",
+    "session",
+    "archive",
+    "delete"
+  ],
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": {
+      "default": "./lib/index.js"
+    },
+    "./client": {
+      "default": "./lib/client.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-runtime",
+        "@deepseek-ai/dsh-client-locale"
+      ]
+    }
+  },
+  "files": [
+    "lib/index.js",
+    "lib/client.js",
+    "cordis.patch.yml",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node --check lib/index.js && node --check lib/client.js && node test/host.test.mjs && node test/client.smoke.cjs"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "license": "MIT"
+}
