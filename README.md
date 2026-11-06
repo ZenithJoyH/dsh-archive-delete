@@ -65,8 +65,14 @@ dsh / 桌面端。只改 `lib/client.js` 时刷新页面即可（若 `pnpm run d
 ### 从 npm / GitHub 安装（发布后）
 
 ```bash
+# Web profile
+dsh plugin --profile web add dsh-archive-delete
+
+# Desktop profile
 dsh plugin --profile desktop add dsh-archive-delete
-# 或
+
+# 仅源码安装（未发布 npm 时）
+dsh plugin --profile web add github:ZenithJoyH/dsh-archive-delete
 dsh plugin --profile desktop add github:ZenithJoyH/dsh-archive-delete
 ```
 
@@ -79,6 +85,16 @@ dsh plugin --profile desktop remove dsh-archive-delete
 ```
 
 并删除 `cordis.patch.yml` 里的 `archive-delete` 条目；重启。
+
+## 兼容性与权限
+
+- **DSH**：0.2.x（Web / 桌面端均使用同一套 client bundle）；
+- **平台**：macOS / Linux / Windows（Host 侧仅使用 Node `fs`/`path`，目录编码与官方 JSONL 后端一致）；
+- **运行环境**：Node.js ≥ 22；
+- **权限**：Host 侧读取 `$DSH_HOME/sessions` 与会话持久化服务，删除时移除该会话的 JSONL 目录与投影缓存；不发起外网请求、不读取工作区文件、不执行命令；
+- **外部服务**：无；浏览器只调用同源 Host 路由 `/plugin/archive-delete/delete`；
+- **数据**：只删除会话日志；附件等内容寻址共享文件与工作区目录不受影响；
+- **许可证**：MIT。
 
 ## 配置
 
