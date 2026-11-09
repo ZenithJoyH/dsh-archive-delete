@@ -60,9 +60,41 @@ vm.runInContext(code, sandbox, { filename: 'lib/client.js' })
 
 assert.ok(loaded, 'bundle should expose a module')
 assert.equal(typeof loaded.apply, 'function')
-assert.deepEqual(Array.from(loaded.inject), ['slots', 'locale'])
+assert.deepEqual(Array.from(loaded.inject), ['slots', 'locale', 'sessions', 'uiWorkspace'])
 const api = loaded.__test
 assert.ok(api, 'test hooks should be exported')
+
+// post-delete cleanup: current session is removed from the list and left
+{
+  const removed = []
+  let started = 0
+  const ctx = {
+    sessions: {
+      list: { getSnapshot: () => ({ byId: { 'session-1': { retainedBy: { mainView: 1 } } } }) },
+      manager: { handleSessionRemoved: (id) => removed.push(id) }
+    },
+    uiWorkspace: { startSession: () => { started += 1 } }
+  }
+  api.cleanupDeletedSession(ctx, 'session-1')
+  assert.deepEqual(removed, ['session-1'])
+  assert.equal(started, 1)
+}
+
+// post-delete cleanup: a non-current session is removed without navigation
+{
+  const removed = []
+  let started = 0
+  const ctx = {
+    sessions: {
+      list: { getSnapshot: () => ({ byId: {} }) },
+      manager: { handleSessionRemoved: (id) => removed.push(id) }
+    },
+    uiWorkspace: { startSession: () => { started += 1 } }
+  }
+  api.cleanupDeletedSession(ctx, 'session-2')
+  assert.deepEqual(removed, ['session-2'])
+  assert.equal(started, 0)
+}
 
 // store lifecycle
 assert.equal(api.getPending(), null)
