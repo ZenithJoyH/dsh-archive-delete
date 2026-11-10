@@ -130,11 +130,37 @@ function makeScoped(overrides = {}) {
 // ── refuses a running session ───────────────────────────────────────────────
 
 {
-  const scoped = makeScoped({ agents: { get: (id) => (id === sessionId ? { id } : undefined) } })
+  const scoped = makeScoped({ agents: { get: (id) => (id === sessionId ? { id, status: 'running' } : undefined) } })
   await assert.rejects(
     deleteArchivedSession(scoped, sessionId, { sessionsRoot: sessions, dshHome: home }),
     (error) => error instanceof DeleteError && error.code === 'active'
   )
+}
+
+// ── unloads an idle resident Agent, then deletes ────────────────────────────
+
+{
+  let live = {
+    id: sessionId,
+    status: 'idle',
+    scope: {
+      dispose: async () => {
+        live = undefined
+      }
+    }
+  }
+  const agents = { get: (id) => (id === sessionId ? live : undefined) }
+  const scoped = makeScoped({ agents })
+  const result = await deleteArchivedSession(scoped, sessionId, {
+    sessionsRoot: sessions,
+    dshHome: home
+  })
+  assert.equal(result.removed, true)
+  assert.equal(live, undefined)
+  assert.deepEqual(scoped.cleaned, [
+    ['detach', sessionId],
+    ['unarchive', sessionId]
+  ])
 }
 
 // ── refuses a session owned by another writer ───────────────────────────────
