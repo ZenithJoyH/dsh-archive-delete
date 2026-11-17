@@ -91,9 +91,11 @@ function makeScoped(overrides = {}) {
     registry,
     persistence,
     agents: overrides.agents ?? { get: () => undefined },
+    sessions: overrides.sessions,
     get(name) {
       if (name === 'agents') return this.agents
       if (name === 'sessionPersistence') return this.persistence
+      if (name === 'sessions') return this.sessions
       return undefined
     },
     workspaceRegistry: registry,
@@ -161,6 +163,25 @@ function makeScoped(overrides = {}) {
     ['detach', sessionId],
     ['unarchive', sessionId]
   ])
+}
+
+// ── detaches a live Session-store entry so the row cannot reappear ──────────
+
+{
+  await mkdir(dir, { recursive: true })
+  await writeFile(join(dir, 'session.v4.jsonl.zstd'), 'stub')
+  let detached = 0
+  const store = new Map([
+    [sessionId, { detach: () => { detached += 1; store.delete(sessionId) } }]
+  ])
+  const scoped = makeScoped({ sessions: { store } })
+  const result = await deleteArchivedSession(scoped, sessionId, {
+    sessionsRoot: sessions,
+    dshHome: home
+  })
+  assert.equal(result.removed, true)
+  assert.equal(detached, 1)
+  assert.equal(store.has(sessionId), false)
 }
 
 // ── refuses a session owned by another writer ───────────────────────────────
