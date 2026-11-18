@@ -1,8 +1,8 @@
 # dsh-archive-delete
 
-> 一个 [DeepSeek Harness (dsh)](https://github.com/deepseek-ai/deepseek-harness) Web 插件：在侧栏里**永久删除已归档的会话**。
+> 一个 [DeepSeek Harness (dsh)](https://github.com/deepseek-ai/deepseek-harness) Web 插件：在侧栏里**把会话标为未读**，并**永久删除已归档的会话**。
 >
-> A DSH Web plugin that permanently deletes **archived** sessions from the sidebar.
+> A DSH Web plugin that marks sessions **unread** and permanently deletes **archived** sessions from the sidebar.
 
 ## 为什么需要它
 
@@ -15,8 +15,25 @@ DSH 的官方设计是「会话只能归档，永不删除」：归档只是把�
 
 它不删除可见会话、不删除工作区、不删除附件等共享文件。
 
+## 两个功能
+
+| 功能 | 入口 | 作用范围 |
+|---|---|---|
+| 标为未读 / 标为已读 | 会话行「⋯」菜单 | 任意会话；行尾显示未读圆点 |
+| 永久删除… | 归档会话的「⋯」菜单 | 仅已归档、未在运行的会话 |
+
+### 关于「未读」
+
+DSH 自带的未读状态只存在于浏览器内存：会话跑完一轮后变未读，打开即清除，**刷新后全部丢失**。本插件：
+
+- 把未读标记持久化在浏览器 `localStorage`（键 `dsh-archive-delete.unread`），刷新、重启后仍在；
+- 同时尽量同步官方那份内存状态，使官方行状态点与提示文案保持一致；
+- 打开会话（成为主视图）时自动清除标记，规则与官方一致；
+- 会话被删除时一并清除标记。
+
 ## 特性
 
+- 🔵 **未读标记**：「⋯」→「标为未读」，行尾出现圆点，刷新后仍保留；打开会话即恢复已读；
 - 🗑 **归档行专属入口**：在「⋯」菜单里新增一行「永久删除…」，普通会话与置顶会话看不到；
 - 🛡 **Host 端双重准入**：会话必须在归档集合中、且没有 live Agent / 其他写锁，否则拒绝；
 - 🪟 **真正的确认弹窗**：显示会话标题与不可撤销警告，失败时就地显示原因；
@@ -93,7 +110,7 @@ dsh plugin --profile desktop remove dsh-archive-delete
 - **运行环境**：Node.js ≥ 22；
 - **权限**：Host 侧读取 `$DSH_HOME/sessions` 与会话持久化服务，删除时移除该会话的 JSONL 目录与投影缓存；不发起外网请求、不读取工作区文件、不执行命令；
 - **外部服务**：无；浏览器只调用同源 Host 路由 `/plugin/archive-delete/delete`；
-- **数据**：只删除会话日志；附件等内容寻址共享文件与工作区目录不受影响；
+- **数据**：只删除会话日志；附件等内容寻址共享文件与工作区目录不受影响；未读标记仅存于本机浏览器 `localStorage`，不上传；
 - **许可证**：MIT。
 
 ## 配置

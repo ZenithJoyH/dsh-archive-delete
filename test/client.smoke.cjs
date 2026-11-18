@@ -35,6 +35,14 @@ const sandbox = {
     addEventListener() {},
     removeEventListener() {}
   },
+  localStorage: (() => {
+    const map = new Map()
+    return {
+      getItem: (k) => (map.has(k) ? map.get(k) : null),
+      setItem: (k, v) => { map.set(k, String(v)) },
+      removeItem: (k) => { map.delete(k) }
+    }
+  })(),
   fetch: async (url, init) => {
     responses.push({ url, init })
     return { ok: true, json: async () => ({ ok: true, sessionId: 'session-1', removed: true }) }
@@ -94,6 +102,53 @@ assert.ok(api, 'test hooks should be exported')
   api.cleanupDeletedSession(ctx, 'session-2')
   assert.deepEqual(removed, ['session-2'])
   assert.equal(started, 0)
+}
+
+// ── unread marks ────────────────────────────────────────────────────────────
+
+{
+  assert.equal(api.isUnread('session-a'), false)
+  api.setUnread(undefined, 'session-a', true)
+  assert.equal(api.isUnread('session-a'), true)
+  assert.deepEqual(JSON.parse(sandbox.localStorage.getItem('dsh-archive-delete.unread')), ['session-a'])
+  api.setUnread(undefined, 'session-a', false)
+  assert.equal(api.isUnread('session-a'), false)
+  assert.deepEqual(JSON.parse(sandbox.localStorage.getItem('dsh-archive-delete.unread')), [])
+}
+
+// a mark clears only when the Session transitions into the main view
+{
+  let main = { 'session-b': { retainedBy: { mainView: 0 } } }
+  const subscribers = []
+  const sessions = {
+    list: {
+      getSnapshot: () => ({ byId: main }),
+      subscribe: (fn) => { subscribers.push(fn); return () => {} }
+    }
+  }
+  const ctx = {
+    sessions,
+    effect: (fn) => { fn() }
+  }
+  api.setUnread(undefined, 'session-b', true)
+  assert.equal(api.isUnread('session-b'), true)
+  api.installUnreadReconciler(ctx)
+
+  // still not main: the mark survives
+  main = { 'session-b': { retainedBy: { mainView: 0 } } }
+  subscribers.forEach((fn) => fn())
+  assert.equal(api.isUnread('session-b'), true, 'mark survives while not opened')
+
+  // marking the already-open session does not instantly clear
+  main = { 'session-b': { retainedBy: { mainView: 1 } } }
+  subscribers.forEach((fn) => fn())
+  assert.equal(api.isUnread('session-b'), false, 'opening clears the mark')
+
+  // a removed session drops its mark
+  api.setUnread(undefined, 'session-b', true)
+  main = {}
+  subscribers.forEach((fn) => fn())
+  assert.equal(api.isUnread('session-b'), false, 'removed session drops its mark')
 }
 
 // store lifecycle

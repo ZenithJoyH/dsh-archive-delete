@@ -1,7 +1,7 @@
 {
   "name": "dsh-archive-delete",
-  "version": "0.1.0",
-  "description": "DSH web plugin: permanently delete archived sessions from the sidebar menu, with a guarded Host route and confirmation dialog. DSH Web 插件：永久删除已归档会话。",
+  "version": "0.2.0",
+  "description": "DSH web plugin: mark sessions unread and permanently delete archived ones. DSH Web 插件：标记会话未读 + 永久删除已归档会话。",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ZenithJoyH/dsh-archive-delete.git"
@@ -16,7 +16,8 @@
     "plugin",
     "session",
     "archive",
-    "delete"
+    "delete",
+    "unread"
   ],
   "type": "module",
   "main": "lib/index.js",
