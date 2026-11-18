@@ -1,14 +1,14 @@
 {
-  "name": "dsh-archive-delete",
+  "name": "dsh-session-actions",
   "version": "0.2.0",
   "description": "DSH web plugin: mark sessions unread and permanently delete archived ones. DSH Web 插件：标记会话未读 + 永久删除已归档会话。",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ZenithJoyH/dsh-archive-delete.git"
+    "url": "git+https://github.com/ZenithJoyH/dsh-session-actions.git"
   },
-  "homepage": "https://github.com/ZenithJoyH/dsh-archive-delete#readme",
+  "homepage": "https://github.com/ZenithJoyH/dsh-session-actions#readme",
   "bugs": {
-    "url": "https://github.com/ZenithJoyH/dsh-archive-delete/issues"
+    "url": "https://github.com/ZenithJoyH/dsh-session-actions/issues"
   },
   "keywords": [
     "dsh",

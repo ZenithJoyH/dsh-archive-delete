@@ -1,12 +1,14 @@
-# dsh-archive-delete
+# dsh-session-actions
 
-> 一个 [DeepSeek Harness (dsh)](https://github.com/deepseek-ai/deepseek-harness) Web 插件：在侧栏里**把会话标为未读**，并**永久删除已归档的会话**。
+> 一个 [DeepSeek Harness (dsh)](https://github.com/deepseek-ai/deepseek-harness) Web 插件：侧栏会话行上的**操作集合**——标为未读、永久删除已归档会话。
 >
-> A DSH Web plugin that marks sessions **unread** and permanently deletes **archived** sessions from the sidebar.
+> A DSH Web plugin that puts **session actions** in the sidebar row menu: mark unread, and permanently delete archived sessions.
+
+原名 `dsh-archive-delete`；功能从“只删归档会话”扩展到“会话操作”后改为现名。旧版本的未读标记会自动迁移。
 
 ## 为什么需要它
 
-DSH 的官方设计是「会话只能归档，永不删除」：归档只是把会话从列表里隐藏，日志仍然占着磁盘，也仍然能被搜索到。`dsh-archive-delete` 补上这一个缺口：
+DSH 的官方设计是「会话只能归档，永不删除」：归档只是把会话从列表里隐藏，日志仍然占着磁盘，也仍然能被搜索到。`dsh-session-actions` 补上这一个缺口：
 
 - 只有**已归档**的会话才会出现「永久删除…」菜单项；
 - 只允许删除**没有在运行、没有其他写入者**的会话；
@@ -26,7 +28,7 @@ DSH 的官方设计是「会话只能归档，永不删除」：归档只是把�
 
 DSH 自带的未读状态只存在于浏览器内存：会话跑完一轮后变未读，打开即清除，**刷新后全部丢失**。本插件：
 
-- 把未读标记持久化在浏览器 `localStorage`（键 `dsh-archive-delete.unread`），刷新、重启后仍在；
+- 把未读标记持久化在浏览器 `localStorage`（键 `dsh-session-actions.unread`），刷新、重启后仍在；
 - 同时尽量同步官方那份内存状态，使官方行状态点与提示文案保持一致；
 - 打开会话（成为主视图）时自动清除标记，规则与官方一致；
 - 会话被删除时一并清除标记。
@@ -58,10 +60,10 @@ DSH 自带的未读状态只存在于浏览器内存：会话跑完一轮后变�
 
 ```bash
 DSH="/Applications/DeepSeek Harness.app/Contents/Resources/runtime/cli/bin/dsh"
-"$DSH" plugin --profile desktop add /absolute/path/to/dsh-archive-delete
+"$DSH" plugin --profile desktop add /absolute/path/to/dsh-session-actions
 ```
 
-包内 `dsh.bundle.patch` 会让插件管理器把 `dsh-archive-delete` 加入 profile 的
+包内 `dsh.bundle.patch` 会让插件管理器把 `dsh-session-actions` 加入 profile 的
 `dsh.profile.bundles`，bundle 里的 `cordis.patch.yml` 再插入加载行；**不需要**手工改
 `cordis.patch.yml`。
 
@@ -70,27 +72,27 @@ dsh / 桌面端。只改 `lib/client.js` 时刷新页面即可（若 `pnpm run d
 
 ### 手动复制安装
 
-若不经过插件管理器，把仓库复制到 profile 的 `node_modules/dsh-archive-delete`，
+若不经过插件管理器，把仓库复制到 profile 的 `node_modules/dsh-session-actions`，
 再在 `~/.dsh/profiles/desktop/cordis.patch.yml` 末尾加入：
 
 ```yaml
 - insert:
-    - id: archive-delete
-      name: "dsh-archive-delete"
+    - id: session-actions
+      name: "dsh-session-actions"
 ```
 
 ### 从 npm 安装（发布后）
 
 ```bash
 # Web profile
-dsh plugin --profile web add dsh-archive-delete
+dsh plugin --profile web add dsh-session-actions
 
 # Desktop profile
-dsh plugin --profile desktop add dsh-archive-delete
+dsh plugin --profile desktop add dsh-session-actions
 
 # 或从 GitHub 源码安装
-dsh plugin --profile web add github:ZenithJoyH/dsh-archive-delete
-dsh plugin --profile desktop add github:ZenithJoyH/dsh-archive-delete
+dsh plugin --profile web add github:ZenithJoyH/dsh-session-actions
+dsh plugin --profile desktop add github:ZenithJoyH/dsh-session-actions
 ```
 
 包内 `dsh.bundle.patch` 已声明挂载行，插件管理器识别 bundle 时会自动插入。
@@ -98,10 +100,10 @@ dsh plugin --profile desktop add github:ZenithJoyH/dsh-archive-delete
 ### 卸载
 
 ```bash
-dsh plugin --profile desktop remove dsh-archive-delete
+dsh plugin --profile desktop remove dsh-session-actions
 ```
 
-并删除 `cordis.patch.yml` 里的 `archive-delete` 条目；重启。
+并删除 `cordis.patch.yml` 里的 `session-actions` 条目；重启。
 
 ## 兼容性与权限
 
@@ -109,7 +111,7 @@ dsh plugin --profile desktop remove dsh-archive-delete
 - **平台**：macOS / Linux / Windows（Host 侧仅使用 Node `fs`/`path`，目录编码与官方 JSONL 后端一致）；
 - **运行环境**：Node.js ≥ 22；
 - **权限**：Host 侧读取 `$DSH_HOME/sessions` 与会话持久化服务，删除时移除该会话的 JSONL 目录与投影缓存；不发起外网请求、不读取工作区文件、不执行命令；
-- **外部服务**：无；浏览器只调用同源 Host 路由 `/plugin/archive-delete/delete`；
+- **外部服务**：无；浏览器只调用同源 Host 路由 `/plugin/session-actions/delete`；
 - **数据**：只删除会话日志；附件等内容寻址共享文件与工作区目录不受影响；未读标记仅存于本机浏览器 `localStorage`，不上传；
 - **许可证**：MIT。
 
@@ -119,10 +121,10 @@ Host 侧可选配置（写在 `cordis.patch.yml` 的条目下）：
 
 ```yaml
 - insert:
-    - id: archive-delete
-      name: "dsh-archive-delete"
+    - id: session-actions
+      name: "dsh-session-actions"
       config:
-        route: /plugin/archive-delete/delete
+        route: /plugin/session-actions/delete
         # 覆盖 JSONL 会话根目录；默认 $DSH_HOME/sessions
         sessionsRoot: /Users/me/.dsh/sessions
         # 覆盖用于清理投影缓存文件的 dsh home；默认 $DSH_HOME 或 ~/.dsh
@@ -133,7 +135,7 @@ Host 侧可选配置（写在 `cordis.patch.yml` 的条目下）：
 
 ## 安全边界
 
-Host 路由 `POST /plugin/archive-delete/delete`：
+Host 路由 `POST /plugin/session-actions/delete`：
 
 - 复用 `ctx.connection.requestRejection()`：Host/Origin 围栏 + 浏览器会话认证，和官方 `/api` 同级；
 - 只接受 `POST`，请求体上限 64 KiB；

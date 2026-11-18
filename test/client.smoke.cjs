@@ -110,10 +110,10 @@ assert.ok(api, 'test hooks should be exported')
   assert.equal(api.isUnread('session-a'), false)
   api.setUnread(undefined, 'session-a', true)
   assert.equal(api.isUnread('session-a'), true)
-  assert.deepEqual(JSON.parse(sandbox.localStorage.getItem('dsh-archive-delete.unread')), ['session-a'])
+  assert.deepEqual(JSON.parse(sandbox.localStorage.getItem('dsh-session-actions.unread')), ['session-a'])
   api.setUnread(undefined, 'session-a', false)
   assert.equal(api.isUnread('session-a'), false)
-  assert.deepEqual(JSON.parse(sandbox.localStorage.getItem('dsh-archive-delete.unread')), [])
+  assert.deepEqual(JSON.parse(sandbox.localStorage.getItem('dsh-session-actions.unread')), [])
 }
 
 // a mark clears only when the Session transitions into the main view
@@ -163,7 +163,7 @@ assert.equal(api.getPending().phase, 'deleting')
 run.then(() => {
   assert.equal(api.getPending(), null)
   assert.equal(responses.length, 1)
-  assert.equal(responses[0].url, '/plugin/archive-delete/delete')
+  assert.equal(responses[0].url, '/plugin/session-actions/delete')
   assert.equal(responses[0].init.method, 'POST')
   assert.deepEqual(JSON.parse(responses[0].init.body), { sessionId: 'session-1' })
 
